@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NFT Gifts Collection - Главная</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Inter',sans-serif;
+      background: #000;
+      color: #fff;
+      min-height:100vh;
+      display:flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-top: 0;
+    }
+    body::before {
+      --size: 45px;
+      --line: #fff;
+      content: '';
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      background:
+        linear-gradient(270deg, var(--line) 1px, transparent 1px var(--size)) calc(var(--size) * 0.64) 50% / var(--size) var(--size),
+        linear-gradient(var(--line) 1px, transparent 1px var(--size)) 0% calc(var(--size) * 0.68) / var(--size) var(--size);
+      mask: linear-gradient(310deg, transparent 40%, white);
+      top: 0;
+      transform-style: flat;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .pagination { text-align: center; margin: 20px 0px; font-size: 16px; }
+
+    /* Навигация сверху */
+    .top-nav {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 14px 12px;
+      gap: 12px;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: transparent;
+      z-index: 50;
+      margin-bottom: 20px;
+
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+    .top-nav::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      backdrop-filter: blur(15px);
+      z-index: -1;
+
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+
+    .top-nav > div {
+      position: relative; /* Важно: относительное позиционирование для контейнера кнопки */
+    }
+
+    .nft-button, .model-button, .backdrop-button, .pattern-button {
+      background: transparent;
+      border: 1px solid #fffffbb5;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .nft-button:disabled, .model-button:disabled, .backdrop-button:disabled, .pattern-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .nft-dropdown, .model-dropdown, .backdrop-dropdown, .pattern-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 15px; /* Добавляем отступ сверху */
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 10px;
+      border-radius: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      max-height: 500px;
+      overflow-y: auto;
+      z-index: 100;
+      backdrop-filter: blur(15px);
+      min-width: 240px;
+      transform: none;
+    }
+    .nft-dropdown { 
+      /* left: 0; уже установлено */
+      min-width: 240px;
+    }
+
+    .model-dropdown, .backdrop-dropdown, .pattern-dropdown { 
+      /* left: 0; уже установлено */
+      min-width: 200px;
+    }
+
+    .nft-dropdown.show, .model-dropdown.show, .backdrop-dropdown.show, .pattern-dropdown.show { 
+      display: flex; 
+    }
+
+    /* Для мобильных устройств - адаптация */
+    @media (max-width: 768px) {
+      .nft-dropdown, .model-dropdown, .backdrop-dropdown, .pattern-dropdown {
+        left: 50%;
+        transform: translateX(-50%); /* Центрируем на мобильных */
+      }
+    }
+    .folder-row, .model-row, .backdrop-row, .pattern-row { 
+      display:flex; 
+      align-items:center; 
+      justify-content:space-between; 
+      gap:8px; 
+      padding: 4px 0;
+    }
+    .folder-preview, .model-preview, .pattern-preview {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .folder-preview img,
+    .folder-preview .mini-animation,
+    .model-preview img,
+    .model-preview .mini-animation,
+    .pattern-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .mini-animation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: rgba(255,255,255,0.8);
+    }
+    .folder-row label, .model-row label, .backdrop-row label, .pattern-row label { 
+      cursor:pointer; 
+      user-select:none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nft-controls, .model-controls, .backdrop-controls, .pattern-controls { 
+      display:flex; 
+      gap:8px; 
+      justify-content:center; 
+
+    }
+    .nft-controls button, .model-controls button, .backdrop-controls button, .pattern-controls button { 
+      background: #000000; 
+      border:1px solid rgb(0, 0, 0); 
+      color:#fff; 
+      padding:6px 8px; 
+      border-radius:8px; 
+      cursor:pointer; 
+    }
+    .backdrop-preview {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.3);
+      flex-shrink: 0;
+    }
+    .nav-link, .nav-current {
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 10px;
+      margin: 0 2px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .nav-current {
+      background: #007bff;
+    }
+    .nav-link:hover {
+      background: #007bff;
+    }
+    .cards-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    /* Стили для карточек */
+    .card {
+      backdrop-filter:blur(12px);
+      border-radius:24px;
+      padding:10px;
+      max-width:420px;
+      width:100%;
+      box-shadow:0 8px 32px rgba(0,0,0,.3);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      background: #000;
+    }
+    .card .square-container {
+      width: 100%;
+    }
+    .card::before {
+      content: attr(data-model-text);
+      position: absolute;
+      top: -20px;
+      right: 81px;
+      width: 25px;
+      height: 140px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      box-shadow: 0 8px 32px 0 rgb(255 255 255 / 25%), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transform: rotate(-45deg);
+      transform-origin: top right;
+      z-index: 3;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.1;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+    .square-container {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      position: relative;
+      overflow: hidden;
+      border-radius: 30px;
+    }
+    .model-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70%;
+      height: 70%;
+      z-index: 2;
+    }
+    .animation-preview {
+      width: 100%;
+      height: 100%;
+    }
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 2;
+      position: relative;
+    }
+    .buttons-wrapper {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      justify-content: space-between;
+    }
+    .btn {
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+    }
+    .btn-left {
+      background: #007bff;
+      border-radius: 50px;
+      padding: 0 20px;
+      flex-grow: 1;
+      min-width: 120px;
+      font-weight: bold;
+    }
+    h1 {
+      font-size:28px;
+      font-weight:700;
+      color:#fff;
+      margin:0;
+      text-shadow:0 2px 4px rgba(0,0,0,.3);
+    }
+    .tgme_gift_table_wrap { width: 100%; max-width: 420px; }
+    .attr-list {
+      width: 100%;
+    }
+    .attr-row {
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .attr-label {
+      font-weight: 600;
+      color: white;
+      font-size: 14px;
+      flex: 1;
+      text-align: left;
+    }
+    .attr-value {
+      color: white;
+      font-size: 14px;
+      flex: 1;
+      text-align: right;
+    }
+    .tgme_gift_owner_address {
+      display: inline-block;
+      max-width: 100%;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      hyphens: auto;
+    }
+    .attr-value mark {
+      background: #007bff;
+      padding: 1px 4px;
+      border-radius: 15px;
+      color: #ffffff;
+    }
+    .tgme_gift_owner_photo {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 8px;
+      vertical-align: middle;
+      flex-shrink: 0;
+      background: #000;
+    }
+    .tgme_gift_owner_photo video,
+    .tgme_gift_owner_photo img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .attr-value a {
+        text-decoration: none !important;
+        color: inherit !important;
+    }   
+    .owner-pulse a {
+        display: inline-block;
+        animation: ownerPulse 3.5s infinite ease-in-out;
+    }
+    @keyframes ownerPulse {
+        0%   { transform: scale(1); }
+        50%  { transform: scale(1.08); }
+        100% { transform: scale(1); }
+    }
+    .owner-pulse a:hover {
+        animation-duration: 1.2s;
+    }
+    
+    /* Сообщение о выборе папки */
+    .no-selection-message {
+      text-align: center;
+      padding: 40px;
+      color: rgba(255,255,255,0.7);
+      font-size: 18px;
+      width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+      .cards-container {
+        flex-direction: row;
+        gap: 10px;
+        padding: 10px;
+      }
+      .card {
+        max-width: none;
+        width: calc(50% - 5px);
+        border-radius: 16px;
+      }
+      .square-container {
+        border-radius: 20px;
+      }
+      h1 { font-size: 20px; }
+      .btn { height: 30px; font-size: 14px; }
+      .btn-left { min-width: 100px; font-weight: bold; }
+      .attr-row {
+        align-items: flex-start;
+      }
+      .attr-label, .attr-value {
+        text-align: left;
+        flex: none;
+      }
+      .no-selection-message {
+        font-size: 16px;
+        padding: 20px;
+      }
+    }
+    .LB5i9s3a { position: relative; }
+    .fWE9Tkfe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .wapdILU7 {
+      position: absolute;
+      color: rgba(255,255,255,0.9);
+      font-size: 8px;
+      opacity: 0;
+      animation: sparkleMove 4s infinite;
+    }
+    @keyframes sparkleMove {
+      0% { opacity: 0; transform: translate(var(--start-x), var(--start-y)) scale(0.5); }
+      20% { opacity: 1; transform: translate(calc(var(--start-x) + var(--move-x) * 0.2), calc(var(--start-y) + var(--move-y) * 0.2)) scale(1); }
+      80% { opacity: 0.8; transform: translate(calc(var(--start-x) + var(--move-x)), calc(var(--start-y) + var(--move-y))) scale(1); }
+      100% { opacity: 0; transform: translate(calc(var(--start-x) + var(--move-x)), calc(var(--start-y) + var(--move-y))) scale(0.5); }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-nav">
+    <div style="position:relative;">
+      <button id="nft-button" class="nft-button">NFT</button>
+      <div id="nft-dropdown" class="nft-dropdown" aria-hidden="true">
+        <div id="folders-list"></div>
+        <div class="nft-controls">
+          <button id="select-all-folders">Выбрать все</button>
+          <button id="clear-folders">Очистить</button>
+        </div>
+      </div>
+    </div>
+    
+    <div style="position:relative;">
+      <button id="model-button" class="model-button" disabled>Модели</button>
+      <div id="model-dropdown" class="model-dropdown" aria-hidden="true">
+        <div id="models-list"></div>
+        <div class="model-controls">
+          <button id="select-all-models">Выбрать все</button>
+          <button id="clear-models">Очистить</button>
+        </div>
+      </div>
+    </div>
+    
+    <div style="position:relative;">
+      <button id="backdrop-button" class="backdrop-button" disabled>Фоны</button>
+      <div id="backdrop-dropdown" class="backdrop-dropdown" aria-hidden="true">
+        <div id="backdrops-list"></div>
+        <div class="backdrop-controls">
+          <button id="select-all-backdrops">Выбрать все</button>
+          <button id="clear-backdrops">Очистить</button>
+        </div>
+      </div>
+    </div>
+    
+    <div style="position:relative;">
+      <button id="pattern-button" class="pattern-button" disabled>Узоры</button>
+      <div id="pattern-dropdown" class="pattern-dropdown" aria-hidden="true">
+        <div id="patterns-list"></div>
+        <div class="pattern-controls">
+          <button id="select-all-patterns">Выбрать все</button>
+          <button id="clear-patterns">Очистить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.9.6/lottie.min.js"></script>
+  
+  <div class="cards-container" id="cards-container">
+    <!-- Карточки будут добавлены динамически скриптом -->
+  </div>
+  <div class="pagination" id="pagination"></div>
+
+  <script id="dynamic-script">
+    // Глобальные переменные
+    window.lottieInstances = window.lottieInstances || {};
+    window.loadedAnimations = window.loadedAnimations || new Set();
+    window.allGiftsDatas = [];
+    window.currentFilteredData = [];
+    window.selectedFolders = [];
+    window.selectedModels = [];
+    window.selectedBackdrops = [];
+    window.selectedPatterns = [];
+
+    // Инициализация Telegram WebApp
+    let tgWebApp;
+    if (window.Telegram && window.Telegram.WebApp) {
+      tgWebApp = window.Telegram.WebApp;
+      tgWebApp.ready();
+      tgWebApp.expand();
+    }
+
+    // Функции генерации (остаются без изменений)
+    function getPatternCoords() {
+      const patternCoords = [];
+      const centerX = 170, centerY = 170;
+      const radii = [110, 157];
+      const numPatternsPerRow = [8, 11];
+      const uniformScale = 0.35;
+      const halfScaled = 50 * uniformScale;
+      const opacities = [0.385, 0.33];
+      for (let rowIdx = 0; rowIdx < radii.length; rowIdx++) {
+        const radius = radii[rowIdx];
+        const numPatterns = numPatternsPerRow[rowIdx];
+        const opacity = opacities[rowIdx];
+        for (let i = 0; i < numPatterns; i++) {
+          const angle = (i / numPatterns) * 2 * Math.PI;
+          const x = centerX + radius * Math.cos(angle);
+          const y = centerY + radius * Math.sin(angle);
+          patternCoords.push({ x, y, opacity, scale: uniformScale });
+        }
+      }
+      return [patternCoords, halfScaled];
+    }
+
+    function generateGradientSvg(data, uniqueId) {
+      const gradientIdMain = `giftGradientMain${uniqueId}`;
+      const svgIdGradient = `giftGradientSvg${uniqueId}`;
+      return `
+<svg id="${svgIdGradient}" viewBox="0 0 340 340" preserveAspectRatio="xMidYMid meet" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0;">
+  <defs>
+    <radialGradient id="${gradientIdMain}" cx="50%" cy="50%" fx="50%" fy="50%" r="50%">
+      <stop stop-color="${data.gradient_from}" offset="0%"/>
+      <stop stop-color="${data.gradient_to}" offset="100%"/>
+    </radialGradient>
+  </defs>
+  <rect x="0" y="0" width="340" height="340" fill="url(#${gradientIdMain})"/>
+</svg>`;
+    }
+
+    function generatePatternSvg(data, uniqueId) {
+      const [patternCoords, halfScaled] = getPatternCoords();
+      const svgIdPatterns = `giftPatterns${uniqueId}`;
+      const filterIdPatterns = `patternColorFilterPatterns${uniqueId}`;
+      const patternIdPatterns = `giftPatternPatterns${uniqueId}`;
+      const fullPatternIdPatterns = `fullPatternPatterns${uniqueId}`;
+      let patternGroupsPatterns = '';
+      for (const coord of patternCoords) {
+        const transX = coord.x - halfScaled;
+        const transY = coord.y - halfScaled;
+        patternGroupsPatterns += `
+<g opacity="${coord.opacity}" transform="translate(${transX}, ${transY})">
+  <use xlink:href="#${patternIdPatterns}" transform="scale(${coord.scale})"/>
+</g>`;
+      }
+      return `
+<svg id="${svgIdPatterns}" viewBox="0 0 340 340" preserveAspectRatio="xMidYMid meet" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;">
+  <defs>
+    <filter id="${filterIdPatterns}">
+      <feFlood flood-color="${data.pattern_tint}"/>
+      <feComposite in2="SourceGraphic" operator="in"/>
+    </filter>
+    <image id="${patternIdPatterns}" x="0" y="0" width="100" height="100" xlink:href="${data.pattern_png_url || ''}"/>
+    <g id="${fullPatternIdPatterns}">
+      ${patternGroupsPatterns}
+    </g>
+  </defs>
+  <use xlink:href="#${fullPatternIdPatterns}" filter="url(#${filterIdPatterns})"/>
+</svg>`;
+    }
+
+    function generateTableHtml(data) {
+      const keysOrder = ['model', 'backdrop', 'symbol', 'owner'];
+      const headerMap = { 
+        'model': 'Модель', 
+        'backdrop': 'Фон', 
+        'symbol': 'Узор', 
+        'owner': 'Владелец' 
+      };
+      let rowsHtml = '';
+
+      for (const key of keysOrder) {
+        const label = (headerMap[key] || key.charAt(0).toUpperCase() + key.slice(1)) + ':';
+        
+        let tdInner = data[`${key}_td_inner`] || data[key] || '—';
+
+        if (key === 'owner') {
+          const isDeleted = tdInner.includes('Deleted Account') || 
+                            tdInner.includes('Deleted') || 
+                            tdInner.includes('data-content="DA"');
+          if (isDeleted) {
+            tdInner = `<span style="color:#ff0000; font-weight:700;">Аккаунт удален</span>`;
+          }
+        }
+
+        rowsHtml += `
+        <div class="attr-row">
+          <span class="attr-label">${label}</span>
+          <span class="attr-value">${tdInner}</span>
+        </div>`;
+      }
+
+      return `
+      <div class="tgme_gift_table_wrap">
+        <div class="attr-list">
+          ${rowsHtml}
+        </div>
+      </div>`;
+    }
+
+    function generateButtonsHtml(uniqueId) {
+      return `
+<div class="buttons-wrapper">
+  <div class="LB5i9s3a" style="position: relative; width: 100%;">
+    <button class="btn btn-left" id="price-btn-${uniqueId}" style="width: 100%;">
+      <svg width="25px" height="25px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;">
+        <path d="M41.4193 7.30899C41.4193 7.30899 45.3046 5.79399 44.9808 9.47328C44.8729 10.9883 43.9016 16.2908 43.1461 22.0262L40.5559 39.0159C40.5559 39.0159 40.3401 41.5048 38.3974 41.9377C36.4547 42.3705 33.5408 40.4227 33.0011 39.9898C32.5694 39.6652 24.9068 34.7955 22.2086 32.4148C21.4531 31.7655 20.5897 30.4669 22.3165 28.9519L33.6487 18.1305C34.9438 16.8319 36.2389 13.8019 30.8426 17.4812L15.7331 27.7616C15.7331 27.7616 14.0063 28.8437 10.7686 27.8698L3.75342 25.7055C3.75342 25.7055 1.16321 24.0823 5.58815 22.459C16.3807 17.3729 29.6555 12.1786 41.4193 7.30899Z" fill="white"/>
+      </svg>
+      Telegram
+    </button>
+    <div class="fWE9Tkfe B94KQ3c0">
+      <div class="wapdILU7" style="top: 0%; left: 20%; --start-x: 0%; --start-y: 0%; --move-x: -51%; --move-y: -85%; animation-delay: -0.5s;">✦</div>
+      <div class="wapdILU7" style="top: 15%; left: 15%; --start-x: 0%; --start-y: 0%; --move-x: -70%; --move-y: -70%; animation-delay: -3.5s;">✦</div>
+      <div class="wapdILU7" style="top: 35%; left: 10%; --start-x: 0%; --start-y: 0%; --move-x: -93%; --move-y: -35%; animation-delay: -4.5s;">✦</div>
+      <div class="wapdILU7" style="top: 70%; left: 20%; --start-x: 0%; --start-y: 0%; --move-x: -83%; --move-y: 55%; animation-delay: -1.5s;">✦</div>
+      <div class="wapdILU7" style="top: 10%; left: 40%; --start-x: 0%; --start-y: 0%; --move-x: -24%; --move-y: -97%; animation-delay: 0s;">✦</div>
+      <div class="wapdILU7" style="top: 60%; left: 45%; --start-x: 0%; --start-y: 0%; --move-x: -44%; --move-y: 89%; animation-delay: -3s;">✦</div>
+      <div class="wapdILU7" style="top: -10%; left: 60%; --start-x: 0%; --start-y: 0%; --move-x: 16%; --move-y: -98%; animation-delay: -1s;">✦</div>
+      <div class="wapdILU7" style="top: 40%; left: 55%; --start-x: 0%; --start-y: 0%; --move-x: 44%; --move-y: -89%; animation-delay: -3s;">✦</div>
+      <div class="wapdILU7" style="top: 65%; left: 70%; --start-x: 0%; --start-y: 0%; --move-x: 80%; --move-y: 60%; animation-delay: -4.5s;">✦</div>
+      <div class="wapdILU7" style="top: 10%; left: 80%; --start-x: 0%; --start-y: 0%; --move-x: 60%; --move-y: -80%; animation-delay: -1.5s;">✦</div>
+      <div class="wapdILU7" style="top: 45%; left: 80%; --start-x: 0%; --start-y: 0%; --move-x: 98%; --move-y: -16%; animation-delay: 0s;">✦</div>
+    </div>
+  </div>
+</div>`;
+    }
+
+    function generateSingleCard(data, uniqueId) {
+      const modelText = `#${data.collectible_id || data.id}`;
+      const tgsUrl = data.tgs_url || '';
+      const svgB64 = data.image_svg_b64 || '';
+      const tgsUrlEsc = tgsUrl.replace(/"/g, '&quot;');
+      const svgB64Esc = svgB64.replace(/"/g, '&quot;');
+      return `
+<div class="card" id="card-${uniqueId}" data-model-text="${modelText}" data-page-url="${data.page_scraped_url || ''}" style="background: ${data.gradient_to}; cursor: pointer;">
+  <div class="square-container">
+    ${generateGradientSvg(data, uniqueId)}
+    ${generatePatternSvg(data, uniqueId)}
+    <div class="model-container">
+      <div class="animation-preview" id="animation-preview-${uniqueId}" data-tgs-url="${tgsUrlEsc}" data-svg-b64="${svgB64Esc}"></div>
+    </div>
+  </div>
+  <div class="card-info">
+    <h1>${data.nft_name || data.name}</h1>
+    ${generateTableHtml(data)}
+    ${generateButtonsHtml(uniqueId)}
+  </div>
+</div>`;
+    }
+
+    // Загрузка данных из JSON
+    async function loadGifts() {
+      try {
+        let datas = [];
+        
+        console.log('Начинаем загрузку данных...');
+        console.log('Доступные папки:', window.availableFolders);
+
+        // Загружаем данные из каждой папки
+        for (const folder of window.availableFolders) {
+          try {
+            console.log(`Пытаемся загрузить из: ${folder}/plush_pepe_data.json`);
+            const resp = await fetch(`${folder}/plush_pepe_data.json`);
+            
+            if (resp.ok) {
+              const part = await resp.json();
+              console.log(`Успешно загружено из ${folder}:`, part.length, 'подарков');
+              
+              if (Array.isArray(part) && part.length) {
+                // Добавляем информацию о папке к каждому подарку и исправляем пути
+                const partWithFolder = part.map(gift => ({
+                  ...gift,
+                  _folder: folder, // Добавляем поле с названием папки
+                  // Исправляем пути к файлам
+                  tgs_url: `${folder}/tgs/${gift.tgs_file_path ? gift.tgs_file_path.split('\\').pop() : ''}`,
+                  // Паттерны находятся на одном уровне с папкой коллекции, а не внутри
+                  pattern_png_url: `patterns/${gift.pattern_file_path ? gift.pattern_file_path.split('\\').pop() : ''}`
+                }));
+                datas = datas.concat(partWithFolder);
+              }
+            } else {
+              console.warn(`Ошибка загрузки из ${folder}:`, resp.status);
+            }
+          } catch (e) {
+            console.warn(`Ошибка fetch для ${folder}/plush_pepe_data.json:`, e);
+          }
+        }
+
+        if (!datas || !datas.length) {
+          throw new Error('Не удалось найти файлы данных в папках');
+        }
+
+        window.allGiftsDatas = datas;
+        console.log('Всего загружено подарков:', datas.length);
+        
+        // Выводим информацию о первых нескольких подарках для отладки
+        console.log('Примеры загруженных подарков:');
+        datas.slice(0, 3).forEach((gift, index) => {
+          console.log(`  ${index + 1}. ID: ${gift.collectible_id}, Модель: ${gift.model}, Папка: ${gift._folder}`);
+          console.log(`     TGS: ${gift.tgs_url}`);
+          console.log(`     Pattern: ${gift.pattern_png_url}`);
+        });
+        
+        showNoSelectionMessage();
+        updateFolderCountsAndRerender();
+      } catch (e) {
+        console.error('Error loading gifts:', e);
+        document.getElementById('cards-container').innerHTML = `<p>Ошибка загрузки данных. ${e.message}</p>`;
+      }
+    }
+
+    // Извлечение уникальных моделей, фонов и узоров
+    function extractModelsAndBackdropsAndPatterns() {
+      const models = new Set();
+      const backdrops = new Set();
+      const patterns = new Set();
+      const backdropColors = {};
+
+      window.allGiftsDatas.forEach(data => {
+        // Извлекаем чистое название модели (без процентов и mark)
+        if (data.model) {
+          let modelName = data.model;
+          
+          // Убираем HTML теги если есть
+          modelName = modelName.replace(/<[^>]*>/g, '');
+          
+          // Убираем проценты и цифры в конце
+          modelName = modelName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          
+          models.add(modelName);
+        }
+        
+        // Извлекаем чистое название фона (без процентов и mark)
+        if (data.backdrop) {
+          let backdropName = data.backdrop;
+          
+          // Убираем HTML теги если есть
+          backdropName = backdropName.replace(/<[^>]*>/g, '');
+          
+          // Убираем проценты и цифры в конце
+          backdropName = backdropName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          
+          backdrops.add(backdropName);
+          backdropColors[backdropName] = data.gradient_to || '#000000';
+        }
+        
+        // Извлекаем чистое название узора (без процентов и mark)
+        if (data.symbol) {
+          let patternName = data.symbol;
+          
+          // Убираем HTML теги если есть
+          patternName = patternName.replace(/<[^>]*>/g, '');
+          
+          // Убираем проценты и цифры в конце
+          patternName = patternName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          
+          patterns.add(patternName);
+        }
+      });
+
+      window.availableModels = Array.from(models).sort();
+      window.availableBackdrops = Array.from(backdrops).sort();
+      window.availablePatterns = Array.from(patterns).sort();
+      window.backdropColors = backdropColors;
+      
+      console.log('Available models:', window.availableModels);
+      console.log('Available backdrops:', window.availableBackdrops);
+      console.log('Available patterns:', window.availablePatterns);
+    }
+
+    // Показать сообщение о необходимости выбора папки
+    function showNoSelectionMessage() {
+      document.getElementById('cards-container').innerHTML = `
+        <div class="no-selection-message">
+          Выберите папку(и) в фильтре NFT для отображения подарков
+        </div>
+      `;
+      document.getElementById('pagination').innerHTML = '';
+    }
+
+    // Рендер страницы с фильтрацией
+    function renderFilteredPage(page, filteredData) {
+      if (!filteredData || !filteredData.length) {
+        document.getElementById('cards-container').innerHTML = `
+          <div class="no-selection-message">
+            Нет подарков, соответствующих выбранным фильтрам
+          </div>
+        `;
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      const totalPages = Math.ceil(filteredData.length / 100);
+      const start = (page - 1) * 100;
+      const end = start + 100;
+      const pageDatas = filteredData.slice(start, end);
+      
+      document.getElementById('cards-container').innerHTML = pageDatas.map(data => generateSingleCard(data, data._unique_id)).join('');
+      updatePagination(page, totalPages);
+      
+      // Очищаем старые анимации перед загрузкой новых
+      for (let data of pageDatas) {
+        const containerId = `animation-preview-${data._unique_id}`;
+        window.loadedAnimations.delete(containerId);
+        if (window.lottieInstances[`preview-${data._unique_id}`]) {
+          window.lottieInstances[`preview-${data._unique_id}`].destroy();
+          delete window.lottieInstances[`preview-${data._unique_id}`];
+        }
+      }
+      
+      loadAnimations(pageDatas);
+    }
+
+    // Обновление пагинации
+    function updatePagination(current, total) {
+      let nav = `Страница ${current} из ${total}: `;
+      for (let p = 1; p <= total; p++) {
+        if (p === current) {
+          nav += `<span class="nav-current">${p}</span>`;
+        } else {
+          nav += `<a href="#" class="nav-link" onclick="changePage(${p})">${p}</a>`;
+        }
+        if (p < total) nav += ' | ';
+      }
+      document.getElementById('pagination').innerHTML = nav;
+    }
+
+    // Смена страницы
+    window.changePage = function(page) {
+      if (window.currentFilteredData && window.currentFilteredData.length) {
+        renderFilteredPage(page, window.currentFilteredData);
+      }
+    };
+
+    // Загрузка анимаций (Lottie)
+    async function loadAnimations(pageDatas) {
+      for (let data of pageDatas) {
+        const uniqueId = data._unique_id;
+        const containerId = `animation-preview-${uniqueId}`;
+        const preview = document.getElementById(containerId);
+        if (!preview) continue;
+        
+        preview.innerHTML = '';
+        
+        const tgsUrl = data.tgs_url;
+        const svgB64 = data.image_svg_b64;
+        
+        if (tgsUrl) {
+          try {
+            window.loadedAnimations.delete(containerId);
+            window.loadedAnimations.add(containerId);
+            const resp = await fetch(tgsUrl);
+            const arrayBuffer = await resp.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+            const decompressed = pako.inflate(uint8Array, { to: "string" });
+            const animationData = JSON.parse(decompressed);
+            
+            if (window.lottieInstances[`preview-${uniqueId}`]) {
+              window.lottieInstances[`preview-${uniqueId}`].destroy();
+            }
+            
+            const animInstance = lottie.loadAnimation({
+              container: preview,
+              renderer: "svg",
+              loop: false,
+              autoplay: false,
+              animationData: animationData
+            });
+            animInstance.goToAndStop(0, true);
+            window.lottieInstances[`preview-${uniqueId}`] = animInstance;
+          } catch (e) {
+            console.error(`Error loading TGS for ${containerId}`, e);
+            if (svgB64) {
+              preview.innerHTML = `<img src="data:image/svg+xml;base64,${svgB64}" style="width:100%;height:100%;object-fit:contain;">`;
+            }
+          }
+        } else if (svgB64) {
+          preview.innerHTML = `<img src="data:image/svg+xml;base64,${svgB64}" style="width:100%;height:100%;object-fit:contain;">`;
+        }
+        
+        const card = document.getElementById(`card-${uniqueId}`);
+        if (card) {
+          card.removeEventListener('click', card._animationHandler);
+          card._animationHandler = (e) => {
+            const anim = window.lottieInstances[`preview-${uniqueId}`];
+            if (anim) anim.goToAndPlay(0, true);
+          };
+          card.addEventListener('click', card._animationHandler);
+        }
+        
+        const priceBtn = document.getElementById(`price-btn-${uniqueId}`);
+        if (priceBtn) {
+          priceBtn.removeEventListener('click', priceBtn._clickHandler);
+          priceBtn._clickHandler = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (data.page_scraped_url) {
+              const urlObj = new URL(data.page_scraped_url);
+              const path = urlObj.pathname.substring(1);
+              const parts = path.split('/');
+              const slug = parts[1];
+              const tgDeepLink = `tg://nft?slug=${encodeURIComponent(slug)}`;
+              
+              if (tgWebApp) {
+                tgWebApp.openTelegramLink(tgDeepLink);
+              } else {
+                window.open(data.page_scraped_url, '_blank');
+              }
+            }
+          };
+          priceBtn.addEventListener('click', priceBtn._clickHandler);
+        }
+      }
+    }
+
+    // Список папок
+    window.availableFolders = ['Plushpepe']; // Добавьте другие папки по мере необходимости
+
+    // Рендер фильтра папок с превью из первого подарка
+    function renderNFTDropdown() {
+      const list = document.getElementById('folders-list');
+      const prevChecked = Array.from(document.querySelectorAll('#folders-list input[type=checkbox]:checked')).map(i => i.dataset.folder);
+      list.innerHTML = '';
+      
+      for (const folder of window.availableFolders) {
+        const id = `folder-ch-${folder}`;
+        // Используем правильное количество из window.folderCounts
+        const count = window.folderCounts && window.folderCounts[folder] ? ` (${window.folderCounts[folder]})` : ' (0)';
+        
+        // Получаем превью из первого подарка папки
+        const previewHtml = getFolderPreview(folder);
+        
+        const row = document.createElement('div');
+        row.className = 'folder-row';
+        row.innerHTML = `
+          <label for="${id}">
+            <input type="checkbox" id="${id}" data-folder="${folder}" style="margin-right:8px;">
+            <div class="folder-preview">${previewHtml}</div>
+            <span>${folder}${count}</span>
+          </label>`;
+        list.appendChild(row);
+      }
+      
+      // Остальной код функции остается без изменений...
+      list.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        if (prevChecked.includes(cb.dataset.folder)) cb.checked = true;
+        cb.addEventListener('change', applyFolderFilter);
+      });
+      
+      document.getElementById('select-all-folders').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = true);
+        applyFolderFilter();
+      });
+      
+      document.getElementById('clear-folders').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+        applyFolderFilter();
+      });
+    }
+
+    // Функция для получения превью папки
+    function getFolderPreview(folderName) {
+      // Получаем все подарки из этой папки
+      const folderGifts = window.allGiftsDatas.filter(data => data._folder === folderName);
+      
+      if (folderGifts.length === 0) {
+        return '<div class="mini-animation">📁</div>';
+      }
+      
+      // Берем ПЕРВЫЙ подарок из папки
+      const firstGift = folderGifts[0];
+      
+      // Создаем уникальный ID для мини-анимации
+      const miniAnimId = `mini-anim-${folderName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+      
+      // Если есть TGS URL - создаем контейнер для Lottie анимации (застывшей на первом кадре)
+      if (firstGift.tgs_url) {
+        // Загружаем анимацию асинхронно, но останавливаем на первом кадре
+        setTimeout(() => loadStaticMiniAnimation(miniAnimId, firstGift.tgs_url), 100);
+        return `<div class="mini-animation" id="${miniAnimId}">🎁</div>`;
+      }
+      
+      // Fallback - иконка папки
+      return '<div class="mini-animation">🎁</div>';
+    }
+    
+    // Функция для загрузки статичной мини-анимации (застывшей на первом кадре)
+    async function loadStaticMiniAnimation(containerId, tgsUrl) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      try {
+        const response = await fetch(tgsUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const decompressed = pako.inflate(uint8Array, { to: "string" });
+        const animationData = JSON.parse(decompressed);
+        
+        // Очищаем контейнер
+        container.innerHTML = '';
+        
+        // Создаем анимацию Lottie, но останавливаем на первом кадре
+        const animInstance = lottie.loadAnimation({
+          container: container,
+          renderer: "svg",
+          loop: false,
+          autoplay: false, // Не автовоспроизводим
+          animationData: animationData
+        });
+        
+        // Останавливаем на первом кадре
+        animInstance.goToAndStop(0, true);
+        
+      } catch (error) {
+        console.error('Error loading static mini animation:', error);
+        // Если не удалось загрузить TGS, показываем иконку
+        container.innerHTML = '✨';
+      }
+    }
+
+    function renderModelDropdown() {
+      const list = document.getElementById('models-list');
+      const prevChecked = Array.from(document.querySelectorAll('#models-list input[type=checkbox]:checked')).map(i => i.dataset.model);
+      list.innerHTML = '';
+      
+      if (!window.availableModels || !window.availableModels.length) {
+        list.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center;">Нет доступных моделей</div>';
+        return;
+      }
+      
+      console.log('Rendering models dropdown with models:', window.availableModels);
+      
+      for (const model of window.availableModels) {
+        const id = `model-ch-${model.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        
+        // Получаем превью для конкретной модели
+        const previewHtml = getModelPreview(model);
+        
+        const row = document.createElement('div');
+        row.className = 'model-row';
+        row.innerHTML = `
+          <label for="${id}">
+            <input type="checkbox" id="${id}" data-model="${model}" style="margin-right:8px;" ${window.selectedModels.includes(model) ? 'checked' : ''}>
+            <div class="model-preview">${previewHtml}</div>
+            ${model}
+          </label>`;
+        list.appendChild(row);
+      }
+      
+      list.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', applyModelFilter);
+      });
+      
+      document.getElementById('select-all-models').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = true);
+        applyModelFilter();
+      });
+      
+      document.getElementById('clear-models').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+        applyModelFilter();
+      });
+    }
+
+    // Функция для получения превью конкретной модели
+    function getModelPreview(modelName) {
+      // Находим все подарки с этой моделью
+      const modelGifts = window.allGiftsDatas.filter(data => {
+        if (!data.model) return false;
+        
+        // Извлекаем чистое название модели разными способами
+        let giftModel = data.model;
+        
+        // Убираем HTML теги если есть
+        giftModel = giftModel.replace(/<[^>]*>/g, '');
+        
+        // Убираем проценты и цифры в конце
+        giftModel = giftModel.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+        
+        // Сравниваем нормализованные названия
+        return normalizeForMatch(giftModel) === normalizeForMatch(modelName);
+      });
+      
+      if (modelGifts.length === 0) {
+        console.log(`Model "${modelName}" not found in gifts data`);
+        return '<div class="mini-animation">✨</div>';
+      }
+      
+      // Берем первый найденный подарок с этой моделью
+      const modelGift = modelGifts[0];
+      
+      // Создаем уникальный ID для мини-анимации
+      const miniAnimId = `model-mini-anim-${modelName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+      
+      // Если есть TGS URL - создаем контейнер для Lottie анимации (застывшей на первом кадре)
+      if (modelGift.tgs_url) {
+        // Загружаем анимацию асинхронно, но останавливаем на первом кадре
+        setTimeout(() => loadStaticMiniAnimation(miniAnimId, modelGift.tgs_url), 100);
+        return `<div class="mini-animation" id="${miniAnimId}">✨</div>`;
+      }
+      
+      // Если есть SVG превью - используем его
+      if (modelGift.image_svg_b64) {
+        return `<img src="data:image/svg+xml;base64,${modelGift.image_svg_b64}" alt="${modelName}" style="width:100%;height:100%;object-fit:contain;" />`;
+      }
+      
+      // Fallback - иконка
+      return '<div class="mini-animation">✨</div>';
+    }
+
+    function renderBackdropDropdown() {
+      const list = document.getElementById('backdrops-list');
+      const prevChecked = Array.from(document.querySelectorAll('#backdrops-list input[type=checkbox]:checked')).map(i => i.dataset.backdrop);
+      list.innerHTML = '';
+      
+      if (!window.availableBackdrops || !window.availableBackdrops.length) {
+        list.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center;">Нет доступных фонов</div>';
+        return;
+      }
+      
+      for (const backdrop of window.availableBackdrops) {
+        const id = `backdrop-ch-${backdrop.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        const color = window.backdropColors[backdrop] || '#000000';
+        const row = document.createElement('div');
+        row.className = 'backdrop-row';
+        row.innerHTML = `
+          <label for="${id}">
+            <input type="checkbox" id="${id}" data-backdrop="${backdrop}" style="margin-right:8px;" ${window.selectedBackdrops.includes(backdrop) ? 'checked' : ''}>
+            <div class="backdrop-preview" style="background: ${color};"></div>
+            ${backdrop}
+          </label>`;
+        list.appendChild(row);
+      }
+      
+      list.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', applyBackdropFilter);
+      });
+      
+      document.getElementById('select-all-backdrops').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = true);
+        applyBackdropFilter();
+      });
+      
+      document.getElementById('clear-backdrops').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+        applyBackdropFilter();
+      });
+    }
+
+    function renderPatternDropdown() {
+      const list = document.getElementById('patterns-list');
+      const prevChecked = Array.from(document.querySelectorAll('#patterns-list input[type=checkbox]:checked')).map(i => i.dataset.pattern);
+      list.innerHTML = '';
+      
+      if (!window.availablePatterns || !window.availablePatterns.length) {
+        list.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center;">Нет доступных узоров</div>';
+        return;
+      }
+      
+      for (const pattern of window.availablePatterns) {
+        const id = `pattern-ch-${pattern.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        
+        // Получаем превью для конкретного узора
+        const previewHtml = getPatternPreview(pattern);
+        
+        const row = document.createElement('div');
+        row.className = 'pattern-row';
+        row.innerHTML = `
+          <label for="${id}">
+            <input type="checkbox" id="${id}" data-pattern="${pattern}" style="margin-right:8px;" ${window.selectedPatterns.includes(pattern) ? 'checked' : ''}>
+            <div class="pattern-preview">${previewHtml}</div>
+            ${pattern}
+          </label>`;
+        list.appendChild(row);
+      }
+      
+      list.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', applyPatternFilter);
+      });
+      
+      document.getElementById('select-all-patterns').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = true);
+        applyPatternFilter();
+      });
+      
+      document.getElementById('clear-patterns').addEventListener('click', (e) => {
+        e.preventDefault();
+        list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+        applyPatternFilter();
+      });
+    }
+
+    // Функция для получения превью конкретного узора
+    function getPatternPreview(patternName) {
+      // Находим все подарки с этим узором
+      const patternGifts = window.allGiftsDatas.filter(data => {
+        if (!data.symbol) return false;
+        
+        // Извлекаем чистое название узора
+        let giftPattern = data.symbol;
+        
+        // Убираем HTML теги если есть
+        giftPattern = giftPattern.replace(/<[^>]*>/g, '');
+        
+        // Убираем проценты и цифры в конце
+        giftPattern = giftPattern.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+        
+        // Сравниваем нормализованные названия
+        return normalizeForMatch(giftPattern) === normalizeForMatch(patternName);
+      });
+      
+      if (patternGifts.length === 0) {
+        return '<div class="mini-animation">🔷</div>';
+      }
+      
+      // Берем первый найденный подарок с этим узором
+      const patternGift = patternGifts[0];
+      
+      // Если есть PNG URL узора - используем его
+      if (patternGift.pattern_png_url) {
+        return `<img src="${patternGift.pattern_png_url}" alt="${patternName}" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='🔷';" />`;
+      }
+      
+      // Fallback - иконка
+      return '<div class="mini-animation">🔷</div>';
+    }
+
+    // Функции переключения dropdown
+    function toggleNFTDropdown() {
+      const dd = document.getElementById('nft-dropdown');
+      dd.classList.toggle('show');
+      dd.setAttribute('aria-hidden', dd.classList.contains('show') ? 'false' : 'true');
+    }
+
+    function toggleModelDropdown() {
+      if (document.getElementById('model-button').disabled) return;
+      const dd = document.getElementById('model-dropdown');
+      dd.classList.toggle('show');
+      dd.setAttribute('aria-hidden', dd.classList.contains('show') ? 'false' : 'true');
+    }
+
+    function toggleBackdropDropdown() {
+      if (document.getElementById('backdrop-button').disabled) return;
+      const dd = document.getElementById('backdrop-dropdown');
+      dd.classList.toggle('show');
+      dd.setAttribute('aria-hidden', dd.classList.contains('show') ? 'false' : 'true');
+    }
+
+    function togglePatternDropdown() {
+      if (document.getElementById('pattern-button').disabled) return;
+      const dd = document.getElementById('pattern-dropdown');
+      dd.classList.toggle('show');
+      dd.setAttribute('aria-hidden', dd.classList.contains('show') ? 'false' : 'true');
+    }
+
+    // Обработчики кликов
+    document.getElementById('nft-button').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleNFTDropdown();
+    });
+
+    document.getElementById('model-button').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleModelDropdown();
+    });
+
+    document.getElementById('backdrop-button').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleBackdropDropdown();
+    });
+
+    document.getElementById('pattern-button').addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePatternDropdown();
+    });
+
+    // Закрыть dropdown при клике вне
+    document.addEventListener('click', (e) => {
+      const nftDD = document.getElementById('nft-dropdown');
+      const modelDD = document.getElementById('model-dropdown');
+      const backdropDD = document.getElementById('backdrop-dropdown');
+      const patternDD = document.getElementById('pattern-dropdown');
+      
+      if (!nftDD.contains(e.target) && !document.getElementById('nft-button').contains(e.target)) {
+        nftDD.classList.remove('show');
+        nftDD.setAttribute('aria-hidden', 'true');
+      }
+      
+      if (!modelDD.contains(e.target) && !document.getElementById('model-button').contains(e.target)) {
+        modelDD.classList.remove('show');
+        modelDD.setAttribute('aria-hidden', 'true');
+      }
+      
+      if (!backdropDD.contains(e.target) && !document.getElementById('backdrop-button').contains(e.target)) {
+        backdropDD.classList.remove('show');
+        backdropDD.setAttribute('aria-hidden', 'true');
+      }
+      
+      if (!patternDD.contains(e.target) && !document.getElementById('pattern-button').contains(e.target)) {
+        patternDD.classList.remove('show');
+        patternDD.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // Нормализация для сравнения
+    function normalizeForMatch(s) {
+      return (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    // Функция applyFolderFilter
+    function applyFolderFilter() {
+      const checked = Array.from(document.querySelectorAll('#folders-list input[type=checkbox]:checked')).map(i => i.dataset.folder || '');
+      window.selectedFolders = checked;
+      
+      // Активируем другие фильтры если выбрана папка
+      const modelButton = document.getElementById('model-button');
+      const backdropButton = document.getElementById('backdrop-button');
+      const patternButton = document.getElementById('pattern-button');
+      
+      if (checked.length > 0) {
+        modelButton.disabled = false;
+        backdropButton.disabled = false;
+        patternButton.disabled = false;
+        
+        // Для отладки
+        debugFolderAssignment();
+        
+        // Извлекаем модели, фоны и узоры ТОЛЬКО из выбранных папок
+        extractModelsAndBackdropsAndPatternsForSelectedFolders();
+        
+        // ВСЕГДА автоматически выбираем ВСЕ модели, фоны и узоры при выборе папок
+        selectAllModelsAndBackdropsAndPatterns();
+        
+        renderModelDropdown();
+        renderBackdropDropdown();
+        renderPatternDropdown();
+      } else {
+        modelButton.disabled = true;
+        backdropButton.disabled = true;
+        patternButton.disabled = true;
+        window.selectedModels = [];
+        window.selectedBackdrops = [];
+        window.selectedPatterns = [];
+        showNoSelectionMessage();
+        window.currentFilteredData = [];
+        return;
+      }
+      
+      applyAllFilters();
+    }
+
+    // Функция: Извлечение уникальных моделей, фонов и узоров только для выбранных папок
+    function extractModelsAndBackdropsAndPatternsForSelectedFolders() {
+      const models = new Set();
+      const backdrops = new Set();
+      const patterns = new Set();
+      const backdropColors = {};
+
+      // Фильтруем данные только по выбранным папкам
+      const filteredData = window.allGiftsDatas.filter(data => {
+        if (!window.selectedFolders.length) return false;
+        
+        // Используем поле _folder которое мы добавили при загрузке
+        return window.selectedFolders.includes(data._folder);
+      });
+
+      console.log(`Для папок [${window.selectedFolders.join(', ')}] найдено подарков:`, filteredData.length);
+
+      // Извлекаем модели, фоны и узоры из отфильтрованных данных
+      filteredData.forEach(data => {
+        if (data.model) {
+          let modelName = data.model;
+          modelName = modelName.replace(/<[^>]*>/g, '');
+          modelName = modelName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          if (modelName) models.add(modelName);
+        }
+        
+        if (data.backdrop) {
+          let backdropName = data.backdrop;
+          backdropName = backdropName.replace(/<[^>]*>/g, '');
+          backdropName = backdropName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          if (backdropName) {
+            backdrops.add(backdropName);
+            backdropColors[backdropName] = data.gradient_to || '#000000';
+          }
+        }
+        
+        if (data.symbol) {
+          let patternName = data.symbol;
+          patternName = patternName.replace(/<[^>]*>/g, '');
+          patternName = patternName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          if (patternName) patterns.add(patternName);
+        }
+      });
+
+      window.availableModels = Array.from(models).sort();
+      window.availableBackdrops = Array.from(backdrops).sort();
+      window.availablePatterns = Array.from(patterns).sort();
+      window.backdropColors = backdropColors;
+      
+      console.log('Доступные модели после фильтрации:', window.availableModels);
+      console.log('Доступные фоны после фильтрации:', window.availableBackdrops);
+      console.log('Доступные узоры после фильтрации:', window.availablePatterns);
+    }
+
+    // Функция: Автоматически выбрать все модели, фоны и узоры
+    function selectAllModelsAndBackdropsAndPatterns() {
+      window.selectedModels = [...window.availableModels];
+      window.selectedBackdrops = [...window.availableBackdrops];
+      window.selectedPatterns = [...window.availablePatterns];
+      
+      console.log('Автоматически выбраны модели:', window.selectedModels);
+      console.log('Автоматически выбраны фоны:', window.selectedBackdrops);
+      console.log('Автоматически выбраны узоры:', window.selectedPatterns);
+    }
+
+    // Фильтрация по моделям
+    function applyModelFilter() {
+      const checked = Array.from(document.querySelectorAll('#models-list input[type=checkbox]:checked')).map(i => i.dataset.model || '');
+      window.selectedModels = checked;
+      applyAllFilters();
+    }
+
+    // Фильтрация по фонам
+    function applyBackdropFilter() {
+      const checked = Array.from(document.querySelectorAll('#backdrops-list input[type=checkbox]:checked')).map(i => i.dataset.backdrop || '');
+      window.selectedBackdrops = checked;
+      applyAllFilters();
+    }
+
+    // Фильтрация по узорам
+    function applyPatternFilter() {
+      const checked = Array.from(document.querySelectorAll('#patterns-list input[type=checkbox]:checked')).map(i => i.dataset.pattern || '');
+      window.selectedPatterns = checked;
+      applyAllFilters();
+    }
+
+    // Функция: Применение всех фильтров
+    function applyAllFilters() {
+      if (!window.selectedFolders.length) {
+        showNoSelectionMessage();
+        window.currentFilteredData = [];
+        return;
+      }
+
+      let filteredData = window.allGiftsDatas.filter(data => {
+        // Используем поле _folder для фильтрации
+        if (!window.selectedFolders.includes(data._folder)) {
+          return false;
+        }
+
+        // Фильтр по моделям
+        if (window.selectedModels.length > 0) {
+          if (!data.model) return false;
+          
+          let modelName = data.model;
+          modelName = modelName.replace(/<[^>]*>/g, '');
+          modelName = modelName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          
+          if (!window.selectedModels.includes(modelName)) return false;
+        }
+
+        // Фильтр по фонам
+        if (window.selectedBackdrops.length > 0) {
+          if (!data.backdrop) return false;
+          
+          let backdropName = data.backdrop;
+          backdropName = backdropName.replace(/<[^>]*>/g, '');
+          backdropName = backdropName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          
+          if (!window.selectedBackdrops.includes(backdropName)) return false;
+        }
+
+        // Фильтр по узорам
+        if (window.selectedPatterns.length > 0) {
+          if (!data.symbol) return false;
+          
+          let patternName = data.symbol;
+          patternName = patternName.replace(/<[^>]*>/g, '');
+          patternName = patternName.replace(/\s*\d*\.?\d*%\s*$/, '').trim();
+          
+          if (!window.selectedPatterns.includes(patternName)) return false;
+        }
+
+        return true;
+      });
+
+      console.log('Итоговое количество отфильтрованных подарков:', filteredData.length);
+      window.currentFilteredData = filteredData;
+      renderFilteredPage(1, filteredData);
+    }
+
+    // Функция: Отладка распределения по папкам
+    function debugFolderAssignment() {
+      console.log('=== ДЕБАГ РАСПРЕДЕЛЕНИЯ ПО ПАПКАМ ===');
+      
+      window.availableFolders.forEach(folder => {
+        const folderGifts = window.allGiftsDatas.filter(data => data._folder === folder);
+        
+        console.log(`Папка "${folder}": ${folderGifts.length} подарков`);
+        
+        // Показать первые 3 подарка для каждой папки
+        folderGifts.slice(0, 3).forEach((gift, index) => {
+          console.log(`  ${index + 1}. ID: ${gift.collectible_id}, Модель: ${gift.model}, Папка: ${gift._folder}`);
+        });
+      });
+    }
+
+    // Функция: Обновить счётчики по папкам
+    function updateFolderCountsAndRerender() {
+      const counts = {};
+      const datas = window.allGiftsDatas || [];
+      
+      for (const folder of window.availableFolders) {
+        const folderGifts = datas.filter(data => data._folder === folder);
+        counts[folder] = folderGifts.length;
+      }
+      
+      window.folderCounts = counts;
+      renderNFTDropdown();
+      
+      console.log('Счётчики папок обновлены:', counts);
+    }
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNFTDropdown();
+      renderModelDropdown();
+      renderBackdropDropdown();
+      renderPatternDropdown();
+      loadGifts().then(() => {
+        // После загрузки данных генерируем уникальные ID для всех подарков
+        window.allGiftsDatas = window.allGiftsDatas.map(gift => ({
+          ...gift,
+          _unique_id: `${gift._folder}-${gift.collectible_id}`
+        }));
+        console.log('Уникальные ID назначены подаркам');
+      });
+    });
+  </script>
+</body>
+</html>
